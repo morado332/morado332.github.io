@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="ar">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>موقع تعلّم اللغة الألمانية - عربي / Deutsch</title>
+  <style>
+    :root{--accent:#0b5fff}
+    html{font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial}
+    body{direction:rtl;margin:0;padding:0;background:#f7fafc;color:#0f172a}
+    header{background:linear-gradient(90deg,#fff 0,#f0f9ff 100%);padding:18px 20px;border-bottom:1px solid #e6eefb}
+    .container{max-width:980px;margin:20px auto;padding:12px}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap}
+    .tab{padding:8px 12px;border-radius:8px;background:#fff;border:1px solid #e6eefb;cursor:pointer}
+    .tab.active{background:var(--accent);color:white}
+    .card{background:white;padding:16px;border-radius:10px;box-shadow:0 4px 18px rgba(16,24,40,0.06);margin-top:12px}
+    h2{margin:0 0 8px 0}
+    .quiz-options{display:grid;grid-template-columns:repeat(1,1fr);gap:8px;margin-top:12px}
+    button.option{padding:12px;border-radius:8px;border:1px solid #e6eefb;background:white;text-align:right;cursor:pointer}
+    button.option.correct{background:#dcfce7;border-color:#bbf7d0}
+    button.option.wrong{background:#fee2e2;border-color:#fecaca}
+    .controls{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap}
+    .small{font-size:13px;color:#475569}
+    form input, form select, form textarea{width:100%;padding:8px;border-radius:6px;border:1px solid #e6eefb;margin-top:6px}
+    .grid-3{display:grid;grid-template-columns:1fr;gap:12px}
+    @media(min-width:900px){.grid-3{grid-template-columns:1fr 1fr 1fr}}
+    footer{margin:20px 0;font-size:13px;color:#64748b}
+    .level-tag{padding:4px 8px;border-radius:999px;border:1px solid #e6eefb;font-size:12px}
+    .error-banner{background:#fee2e2;color:#7f1d1d;padding:8px;border-radius:8px;margin-top:12px;display:none}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container" id="header-container">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
+        <div>
+          <strong id="site-title">موقع تعلّم اللغة الألمانية</strong>
+          <div class="small" id="site-sub">مستويات: A1 → B1 — اختبارات: أرتيكل، تصريف أفعال، تركيب جمل</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <label class="small">اللغة / Sprache</label>
+          <select id="lang-select">
+            <option value="ar">العربية</option>
+            <option value="de">Deutsch</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="tabs" id="tabs">
+      <div class="tab active" data-tab="articles"><span data-tkey="tab_articles">أرتيكل (der/die/das)</span></div>
+      <div class="tab" data-tab="verbs"> <span data-tkey="tab_verbs">تصريف أفعال</span></div>
+      <div class="tab" data-tab="sentences"><span data-tkey="tab_sentences">تكوين جمل</span></div>
+      <div class="tab" data-tab="admin"><span data-tkey="tab_admin">لوحة المسؤول</span></div>
+    </div>
+
+    <div id="content">
+      <!-- Articles -->
+      <section id="articles" class="card">
+        <h2 data-tkey="h_articles">سؤال الأرتيكل</h2>
+        <div class="small">
+          <span data-tkey="p_articles">اختر الأرتيكل الصحيح للكلمة (مستوى: )</span>
+          <select id="articles-level"><option>A1</option><option>A2</option><option>B1</option></select>
+        </div>
+        <div id="article-word" style="margin-top:12px;font-size:20px;font-weight:600"></div>
+        <div class="quiz-options" id="article-options"></div>
+        <div class="controls">
+          <button id="article-new" class="tab" data-tkey="btn_new">سؤال جديد</button>
+          <div id="article-feedback" class="small"></div>
+        </div>
+      </section>
+
+      <!-- Verbs -->
+      <section id="verbs" class="card" style="display:none">
+        <h2 data-tkey="h_verbs">سؤال تصريف الفعل</h2>
+        <div class="small">
+          <span data-tkey="p_verbs">اختر التصريف الصحيح — اختر المستوى: </span>
+          <select id="verbs-level"><option>A1</option><option>A2</option><option>B1</option></select>
+        </div>
+        <div style="margin-top:12px">الفعل: <span id="verb-inf" style="font-weight:700"></span> — زمن: <span id="verb-tense" style="font-weight:700"></span> — فاعل: <span id="verb-person" style="font-weight:700"></span></div>
+        <div class="quiz-options" id="verb-options"></div>
+        <div class="controls">
+          <button id="verb-new" class="tab" data-tkey="btn_new">سؤال جديد</button>
+          <div id="verb-feedback" class="small"></div>
+        </div>
+      </section>
+
+      <!-- Sentences -->
+      <section id="sentences" class="card" style="display:none">
+        <h2 data-tkey="h_sentences">اختر الجملة الصحيحة</h2>
+        <div class="small">
+          <span data-tkey="p_sentences">اختر المستوى: </span>
+          <select id="sentences-level"><option>A1</option><option>A2</option><option>B1</option></select>
+        </div>
+        <div id="sentence-meaning" style="margin-top:12px;color:#334155"></div>
+        <div class="quiz-options" id="sentence-options"></div>
+        <div class="controls">
+          <button id="sentence-new" class="tab" data-tkey="btn_new">سؤال جديد</button>
+          <div id="sentence-feedback" class="small"></div>
+        </div>
+      </section>
+
+      <!-- Admin -->
+      <section id="admin" class="card" style="display:none">
+        <h2 data-tkey="h_admin">لوحة المسؤول (تسجيل الدخول / إدارة)</h2>
+
+        <div id="login-box">
+          <!-- If no admin exists, show setup form; otherwise show login -->
+          <div id="setup-container" style="display:none">
+            <h3>إعداد حساب المسؤول</h3>
+            <p class="small">قم بإنشاء اسم مستخدم وكلمة سر للمسؤول. كلمة السر لن تُعرض على الواجهة أبداً، سيتم حفظها مشفّرة في التخزين المحلي.</p>
+            <form id="setup-form">
+              <label>اسم المستخدم</label>
+              <input id="setup-user" placeholder="MO" required />
+              <label>كلمة السر</label>
+              <input id="setup-pass" type="password" placeholder="أدخل كلمة السر" required />
+              <label>تأكيد كلمة السر</label>
+              <input id="setup-pass2" type="password" placeholder="كرر كلمة السر" required />
+              <div class="controls"><button class="tab" type="submit">إنشاء المسؤول</button></div>
+              <div id="setup-msg" class="small" style="color:#b91c1c;margin-top:8px"></div>
+            </form>
+          </div>
+
+          <div id="login-container" style="display:none">
+            <form id="login-form">
+              <label data-tkey="login_user">اسم المستخدم</label>
+              <input id="login-user" placeholder="MO" required />
+              <label data-tkey="login_pass">كلمة المرور</label>
+              <input id="login-pass" type="password" placeholder="••••••" required />
+              <div class="controls"><button class="tab" type="submit" data-tkey="btn_login">دخول</button></div>
+              <div id="login-msg" class="small" style="margin-top:8px;color:#b91c1c"></div>
+            </form>
+          </div>
+        </div>
+
+        <div id="admin-panel" style="display:none;margin-top:12px">
+          <div class="grid-3">
+            <div>
+              <h3 data-tkey="admin_add_noun">إضافة اسم (Noun)</h3>
+              <form id="form-noun">
+                <label data-tkey="label_word">الكلمة (بدون أرتيكل)</label>
+                <input id="noun-word" required placeholder="Tisch" />
+                <label data-tkey="label_article">الأرتيكل</label>
+                <select id="noun-article"><option>der</option><option>die</option><option>das</option></select>
+                <label data-tkey="label_meaning">المعنى (عربي/إنجليزي)</label>
+                <input id="noun-meaning" placeholder="table" />
+                <label data-tkey="label_level">المستوى</label>
+                <select id="noun-level"><option>A1</option><option>A2</option><option>B1</option></select>
+                <button type="submit" class="tab" style="margin-top:8px" data-tkey="btn_add_noun">إضافة اسم</button>
+              </form>
+            </div>
+            <div>
+              <h3 data-tkey="admin_add_verb">إضافة فعل (Verb)</h3>
+              <form id="form-verb">
+                <label data-tkey="label_inf">المصدر (Infinitive)</label>
+                <input id="verb-inf-input" required placeholder="machen" />
+                <label data-tkey="label_meaning">المعنى</label>
+                <input id="verb-meaning" placeholder="to do/make" />
+                <label data-tkey="label_type">نوع (regular/irregular)</label>
+                <select id="verb-type"><option>regular</option><option>irregular</option></select>
+                <label data-tkey="label_level">المستوى</label>
+                <select id="verb-level"><option>A1</option><option>A2</option><option>B1</option></select>
+                <div class="small" data-tkey="admin_irregular_hint">لـ irregular: يمكن تحرير القاعدة في التخزين المحلي لاحقًا لإضافة أشكال محددة.</div>
+                <button type="submit" class="tab" style="margin-top:8px" data-tkey="btn_add_verb">إضافة فعل</button>
+              </form>
+            </div>
+            <div>
+              <h3 data-tkey="admin_add_sentence">إضافة جملة (Sentence)</h3>
+              <form id="form-sentence">
+                <label data-tkey="label_sentence">الجملة الصحيحة (ألماني)</label>
+                <input id="sent-text" required placeholder="Ich trinke Kaffee." />
+                <label data-tkey="label_meaning">المعنى</label>
+                <input id="sent-meaning" placeholder="I drink coffee" />
+                <label data-tkey="label_wrong1">خيار خاطئ 1</label>
+                <input id="sent-w1" placeholder="Ich Kaffee trinke." />
+                <label data-tkey="label_wrong2">خيار خاطئ 2</label>
+                <input id="sent-w2" placeholder="Trinke ich Kaffee." />
+                <label data-tkey="label_level">المستوى</label>
+                <select id="sent-level"><option>A1</option><option>A2</option><option>B1</option></select>
+                <button type="submit" class="tab" style="margin-top:8px" data-tkey="btn_add_sentence">إضافة جملة</button>
+              </form>
+            </div>
+          </div>
+
+          <div style="margin-top:16px">
+            <h3 data-tkey="db_title">قاعدة البيانات الحالية</h3>
+            <div id="db-contents" class="small"></div>
+            <div class="small" style="margin-top:8px;color:#334155" data-tkey="db_note">المحتوى محفوظ في التخزين المحلي (localStorage) في المتصفح. يمكنك تصديره/استيراده أو تحريره يدويًا.</div>
+            <div style="margin-top:8px">
+              <button id="export-btn" class="tab">Export JSON</button>
+              <button id="import-btn" class="tab">Import JSON</button>
+              <input id="import-file" type="file" accept="application/json" style="display:none" />
+            </div>
+
+            <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
+              <button id="change-pass-btn" class="tab">تغيير كلمة السر</button>
+              <button id="logout-btn" class="tab">تسجيل الخروج</button>
+            </div>
+
+            <div id="change-pass-box" style="display:none;margin-top:8px">
+              <h4>تغيير كلمة السر</h4>
+              <form id="change-pass-form">
+                <label>كلمة السر الحالية</label>
+                <input id="old-pass" type="password" required />
+                <label>كلمة السر الجديدة</label>
+                <input id="new-pass" type="password" required />
+                <label>تأكيد كلمة السر الجديدة</label>
+                <input id="new-pass2" type="password" required />
+                <div class="controls"><button class="tab" type="submit">حفظ</button></div>
+                <div id="change-pass-msg" class="small" style="color:#b91c1c;margin-top:8px"></div>
+              </form>
+            </div>
+
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+
+    <footer>
+      <div data-tkey="footer_note">ملاحظة: هذا الموقع يعمل محليًا في المتصفح ويخزن المحتوى في localStorage.</div>
+    </footer>
+
+    <div id="error-banner" class="error-banner" role="alert"></div>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function(){
+      // --- helper: base64 / buffer ---
+      function bufToBase64(buf){
+        let binary='';
+        const bytes = new Uint8Array(buf);
+        const len = bytes.byteLength;
+        for(let i=0;i<len;i++) binary += String.fromCharCode(bytes[i]);
+        return btoa(binary);
+      }
+      function base64ToBuf(b64){
+        const binary = atob(b64);
+        const len = binary.length;
+        const bytes = new Uint8Array(len);
+        for(let i=0;i<len;i++) bytes[i]=binary.charCodeAt(i);
+        return bytes.buffer;
+      }
+
+      // --- secure password hashing using PBKDF2 + SHA-256 via Web Crypto ---
+      async function deriveKey(password, saltBase64, iterations=150000){
+        const enc = new TextEncoder();
+        const passKey = await crypto.subtle.importKey('raw', enc.encode(password), {name:'PBKDF2'}, false, ['deriveBits']);
+        const salt = base64ToBuf(saltBase64);
+        const derived = await crypto.subtle.deriveBits({name:'PBKDF2', salt: salt, iterations: iterations, hash: 'SHA-256'}, passKey, 256);
+        return bufToBase64(derived);
+      }
+
+      function generateSalt(){
+        const arr = new Uint8Array(16); crypto.getRandomValues(arr); return bufToBase64(arr.buffer);
+      }
+
+      const ADMIN_KEY = 'german_admin_v1';
+      function loadAdmin(){
+        try{ const raw = localStorage.getItem(ADMIN_KEY); return raw ? JSON.parse(raw) : null; }catch(e){return null;}
+      }
+      function saveAdmin(obj){ localStorage.setItem(ADMIN_KEY, JSON.stringify(obj)); }
+
+      // --- UI elements ---
+      const setupContainer = document.getElementById('setup-container');
+      const loginContainer = document.getElementById('login-container');
+      const adminPanel = document.getElementById('admin-panel');
+      const setupForm = document.getElementById('setup-form');
+      const setupMsg = document.getElementById('setup-msg');
+      const loginForm = document.getElementById('login-form');
+      const loginMsg = document.getElementById('login-msg');
+      const changePassBtn = document.getElementById('change-pass-btn');
+      const logoutBtn = document.getElementById('logout-btn');
+      const changePassBox = document.getElementById('change-pass-box');
+      const changePassForm = document.getElementById('change-pass-form');
+      const changePassMsg = document.getElementById('change-pass-msg');
+
+      // other elements (quizzes)
+      const articleWordEl = document.getElementById('article-word');
+      const articleOptionsEl = document.getElementById('article-options');
+      const articleNewBtn = document.getElementById('article-new');
+      const articleFeedback = document.getElementById('article-feedback');
+      const articlesLevel = document.getElementById('articles-level');
+
+      const verbInfEl = document.getElementById('verb-inf');
+      const verbTenseEl = document.getElementById('verb-tense');
+      const verbPersonEl = document.getElementById('verb-person');
+      const verbOptionsEl = document.getElementById('verb-options');
+      const verbNewBtn = document.getElementById('verb-new');
+      const verbFeedback = document.getElementById('verb-feedback');
+      const verbsLevel = document.getElementById('verbs-level');
+
+      const sentenceMeaningEl = document.getElementById('sentence-meaning');
+      const sentenceOptionsEl = document.getElementById('sentence-options');
+      const sentenceNewBtn = document.getElementById('sentence-new');
+      const sentenceFeedback = document.getElementById('sentence-feedback');
+      const sentencesLevel = document.getElementById('sentences-level');
+
+      // --- Data storage for course content ---
+      const STORAGE = 'german-a1-b1-db-v1';
+      const defaultDb = { nouns:[{id:1,noun:'Tisch',article:'der',meaning:'table',level:'A1'},{id:2,noun:'Lampe',article:'die',meaning:'lamp',level:'A1'},{id:3,noun:'Buch',article:'das',meaning:'book',level:'A1'}], verbs:[{id:1,inf:'machen',meaning:'to make/do',type:'regular',level:'A1'}], sentences:[{id:1,text:'Ich trinke Kaffee.',meaning:'I drink coffee',wrong1:'Ich Kaffee trinke.',wrong2:'Trinke ich Kaffee.',level:'A1'}] };
+      function loadDb(){ try{ const raw = localStorage.getItem(STORAGE); return raw? JSON.parse(raw) : JSON.parse(JSON.stringify(defaultDb)); }catch(e){ return JSON.parse(JSON.stringify(defaultDb)); } }
+      function saveDb(db){ localStorage.setItem(STORAGE, JSON.stringify(db)); renderDb(); }
+      let db = loadDb();
+
+      // utilities
+      function rand(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+      function shuffle(a){ const arr=a.slice(); for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]];} return arr; }
+      function nextId(list){ return list.length? Math.max(...list.map(x=>x.id))+1 : 1; }
+
+      // conjugator (simplified)
+      const persons = ['ich','du','er','wir','ihr','Sie'];
+      function conjugate(verb,tense,person){ if(verb.forms){ if(tense==='present' && verb.forms.present && verb.forms.present[person]) return verb.forms.present[person]; if(tense==='praeteritum' && verb.forms.praeteritum && verb.forms.praeteritum[person]) return verb.forms.praeteritum[person]; if(tense==='future' && verb.forms.future && verb.forms.future[person]) return verb.forms.future[person]; if(tense==='imperative' && verb.forms.imperative && verb.forms.imperative[person]) return verb.forms.imperative[person]; } const inf = verb.inf || verb.infinitive; const stem = (inf||'').replace(/en$|n$/i,''); if(tense==='present'){ if(person==='ich') return stem+'e'; if(person==='du') return (/[szß]$/.test(stem)? stem+'t': stem+'st'); if(person==='er') return stem+'t'; if(person==='wir') return stem+'en'; if(person==='ihr') return stem+'t'; if(person==='Sie') return stem+'en'; } if(tense==='praeteritum'){ if(person==='ich') return stem+'te'; if(person==='du') return stem+'test'; if(person==='er') return stem+'te'; if(person==='wir') return stem+'ten'; if(person==='ihr') return stem+'tet'; if(person==='Sie') return stem+'ten'; } if(tense==='future'){ if(person==='ich') return 'werde '+inf; if(person==='du') return 'wirst '+inf; if(person==='er') return 'wird '+inf; if(person==='wir') return 'werden '+inf; if(person==='ihr') return 'werdet '+inf; if(person==='Sie') return 'werden '+inf; } if(tense==='imperative'){ if(person==='du') return stem; if(person==='ihr') return stem+'t'; if(person==='Sie') return inf+' Sie'; } return inf; }
+
+      // --- quiz builders ---
+      function buildArticleQuestion(){ try{ const level = articlesLevel.value; const candidates = db.nouns.filter(n=>n.level===level); if(!candidates || candidates.length===0){ articleWordEl.textContent='لا توجد كلمات لهذا المستوى'; articleOptionsEl.innerHTML=''; return; } const item = rand(candidates); articleWordEl.innerHTML = '<span>'+item.noun+'</span> <span style="font-size:13px;color:#475569">('+item.meaning+')</span>'; const correct = item.article; const distract = ['der','die','das'].filter(a=>a!==correct); const opts = shuffle([correct,distract[0],distract[1]]); articleOptionsEl.innerHTML=''; opts.forEach(o=>{ const btn=document.createElement('button'); btn.className='option'; btn.textContent=o; btn.onclick=()=>{ if(o===correct){ btn.classList.add('correct'); articleFeedback.textContent='صح!'; } else{ btn.classList.add('wrong'); articleFeedback.textContent='خطأ — الصحيح: '+correct; } Array.from(articleOptionsEl.querySelectorAll('button')).forEach(b=>b.disabled=true); }; articleOptionsEl.appendChild(btn); }); articleFeedback.textContent=''; }catch(err){ showError(err); } }
+
+      function buildVerbQuestion(){ try{ const level = verbsLevel.value; const candidates = db.verbs.filter(v=>v.level===level); if(!candidates || candidates.length===0){ verbInfEl.textContent='لا توجد أفعال لهذا المستوى'; verbOptionsEl.innerHTML=''; return; } const v = rand(candidates); const tenses = ['present','praeteritum','future','imperative']; const tense = rand(tenses); const person = rand(persons); const correct = conjugate(v,tense,person); const alt1 = correct + (Math.random()>0.5? 'e':'t'); const alt2 = conjugate(v,'present',rand(persons)); const opts = shuffle([correct,alt1,alt2]); verbInfEl.textContent = v.inf || v.infinitive; verbTenseEl.textContent = tense; verbPersonEl.textContent = person; verbOptionsEl.innerHTML=''; opts.forEach(o=>{ const btn=document.createElement('button'); btn.className='option'; btn.textContent=o; btn.onclick=()=>{ if(o===correct){ btn.classList.add('correct'); verbFeedback.textContent='صح!'; } else{ btn.classList.add('wrong'); verbFeedback.textContent='خطأ — الصحيح: '+correct; } Array.from(verbOptionsEl.querySelectorAll('button')).forEach(b=>b.disabled=true); }; verbOptionsEl.appendChild(btn); }); verbFeedback.textContent=''; }catch(err){ showError(err); } }
+
+      function buildSentenceQuestion(){ try{ const level = sentencesLevel.value; const candidates = db.sentences.filter(s=>s.level===level); if(!candidates || candidates.length===0){ sentenceMeaningEl.textContent='لا توجد جمل لهذا المستوى'; sentenceOptionsEl.innerHTML=''; return; } const s = rand(candidates); sentenceMeaningEl.textContent = 'المعنى: '+(s.meaning||'—'); const opts = shuffle([s.text,s.wrong1,s.wrong2]); sentenceOptionsEl.innerHTML=''; opts.forEach(o=>{ const btn=document.createElement('button'); btn.className='option'; btn.textContent=o; btn.onclick=()=>{ if(o===s.text){ btn.classList.add('correct'); sentenceFeedback.textContent='صح!'; } else{ btn.classList.add('wrong'); sentenceFeedback.textContent='خطأ'; } Array.from(sentenceOptionsEl.querySelectorAll('button')).forEach(b=>b.disabled=true); }; sentenceOptionsEl.appendChild(btn); }); sentenceFeedback.textContent=''; }catch(err){ showError(err); } }
+
+      // wire quiz events
+      articleNewBtn.addEventListener('click', buildArticleQuestion); articlesLevel.addEventListener('change', buildArticleQuestion);
+      verbNewBtn.addEventListener('click', buildVerbQuestion); verbsLevel.addEventListener('change', buildVerbQuestion);
+      sentenceNewBtn.addEventListener('click', buildSentenceQuestion); sentencesLevel.addEventListener('change', buildSentenceQuestion);
+
+      // --- Admin logic: setup / login / change password ---
+      async function showAuthUI(){
+        const admin = loadAdmin();
+        if(!admin){ // show setup
+          setupContainer.style.display='block'; loginContainer.style.display='none'; adminPanel.style.display='none';
+        } else { // show login
+          setupContainer.style.display='none'; loginContainer.style.display='block'; adminPanel.style.display='none';
+        }
+      }
+
+      showAuthUI();
+
+      setupForm.addEventListener('submit', async function(e){ e.preventDefault(); setupMsg.textContent=''; const user = document.getElementById('setup-user').value.trim(); const pass = document.getElementById('setup-pass').value; const pass2 = document.getElementById('setup-pass2').value; if(!user || !pass) { setupMsg.textContent='الرجاء تعبئة الحقول'; return; } if(pass !== pass2){ setupMsg.textContent='كلمتا السر غير متطابقتين'; return; } try{ const salt = generateSalt(); const hash = await deriveKey(pass, salt); const admin = { user: user, hash: hash, salt: salt, iterations: 150000 }; saveAdmin(admin); setupMsg.style.color='#15803d'; setupMsg.textContent='تم إنشاء حساب المسؤول. الرجاء تسجيل الدخول.'; setTimeout(()=>{ showAuthUI(); },800); }catch(err){ setupMsg.textContent='خطأ أثناء الإنشاء'; console.error(err); }
+      });
+
+      loginForm.addEventListener('submit', async function(e){ e.preventDefault(); loginMsg.textContent=''; const user = document.getElementById('login-user').value.trim(); const pass = document.getElementById('login-pass').value; const admin = loadAdmin(); if(!admin){ loginMsg.textContent='لا يوجد حساب. قم بالإعداد أولاً.'; return; } if(user !== admin.user){ loginMsg.textContent='اسم المستخدم غير صحيح'; return; } try{ const hash = await deriveKey(pass, admin.salt, admin.iterations || 150000); if(hash === admin.hash){ // success
+            sessionStorage.setItem('german_admin_logged','1'); loginMsg.style.color='#15803d'; loginMsg.textContent='تم تسجيل الدخول'; setupContainer.style.display='none'; loginContainer.style.display='none'; adminPanel.style.display='block'; renderDb();
+          } else { loginMsg.textContent='بيانات خاطئة'; }
+      }catch(err){ console.error(err); loginMsg.textContent='خطأ أثناء التحقق'; }
+      });
+
+      // change password
+      changePassBtn.addEventListener('click', function(){ changePassBox.style.display = changePassBox.style.display === 'none' ? 'block' : 'none'; changePassMsg.textContent=''; });
+      changePassForm.addEventListener('submit', async function(e){ e.preventDefault(); changePassMsg.textContent=''; const oldp = document.getElementById('old-pass').value; const newp = document.getElementById('new-pass').value; const newp2 = document.getElementById('new-pass2').value; if(newp !== newp2){ changePassMsg.textContent='كلمتا السر الجديدتان غير متطابقتين'; return; } const admin = loadAdmin(); if(!admin){ changePassMsg.textContent='لا يوجد حساب محفوظ'; return; } try{ const oldHash = await deriveKey(oldp, admin.salt, admin.iterations || 150000); if(oldHash !== admin.hash){ changePassMsg.textContent='كلمة السر الحالية خاطئة'; return; } const newSalt = generateSalt(); const newHash = await deriveKey(newp, newSalt); const newAdmin = { user: admin.user, hash: newHash, salt: newSalt, iterations: 150000 }; saveAdmin(newAdmin); changePassMsg.style.color='#15803d'; changePassMsg.textContent='تم تغيير كلمة السر بنجاح'; changePassForm.reset(); }catch(err){ console.error(err); changePassMsg.textContent='خطأ أثناء التغيير'; }
+      });
+
+      logoutBtn.addEventListener('click', function(){ sessionStorage.removeItem('german_admin_logged'); // show login UI
+        adminPanel.style.display='none'; showAuthUI(); });
+
+      // --- Admin forms (content) ---
+      document.getElementById('form-noun').addEventListener('submit', function(e){ e.preventDefault(); const w=document.getElementById('noun-word').value.trim(); if(!w) return; const a=document.getElementById('noun-article').value; const m=document.getElementById('noun-meaning').value; const lvl=document.getElementById('noun-level').value; const next={id:nextId(db.nouns),noun:w,article:a,meaning:m,level:lvl}; db.nouns.push(next); saveDb(db); this.reset(); buildArticleQuestion(); alert('تم إضافة اسم'); });
+      document.getElementById('form-verb').addEventListener('submit', function(e){ e.preventDefault(); const inf=document.getElementById('verb-inf-input').value.trim(); if(!inf) return; const meaning=document.getElementById('verb-meaning').value; const type=document.getElementById('verb-type').value; const lvl=document.getElementById('verb-level').value; const next={id:nextId(db.verbs),inf:inf,meaning:meaning,type:type,level:lvl}; db.verbs.push(next); saveDb(db); this.reset(); buildVerbQuestion(); alert('تم إضافة فعل'); });
+      document.getElementById('form-sentence').addEventListener('submit', function(e){ e.preventDefault(); const text=document.getElementById('sent-text').value.trim(); if(!text) return; const meaning=document.getElementById('sent-meaning').value; const w1=document.getElementById('sent-w1').value; const w2=document.getElementById('sent-w2').value; const lvl=document.getElementById('sent-level').value; const next={id:nextId(db.sentences),text:text,meaning:meaning,wrong1:w1,wrong2:w2,level:lvl}; db.sentences.push(next); saveDb(db); this.reset(); buildSentenceQuestion(); alert('تم إضافة جملة'); });
+
+      // render DB
+      function renderDb(){ const el=document.getElementById('db-contents'); el.innerHTML = '<strong>الأسماء:</strong><br/>' + db.nouns.map(function(n){ return '<div>'+n.level+' • '+n.article+' '+n.noun+' — '+(n.meaning||'')+'</div>'; }).join('') + '<br/><strong>الأفعال:</strong><br/>' + db.verbs.map(function(v){ return '<div>'+v.level+' • '+(v.inf||'')+' — '+(v.meaning||'')+' '+(v.type? ' ('+v.type+')':'')+'</div>'; }).join('') + '<br/><strong>الجمل:</strong><br/>' + db.sentences.map(function(s){ return '<div>'+s.level+' • '+s.text+' — '+(s.meaning||'')+'</div>'; }).join(''); }
+
+      // export/import
+      document.getElementById('export-btn').addEventListener('click', function(){ const a=document.createElement('a'); const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}); a.href=URL.createObjectURL(blob); a.download='german-db.json'; a.click(); });
+      document.getElementById('import-btn').addEventListener('click', function(){ document.getElementById('import-file').click(); });
+      document.getElementById('import-file').addEventListener('change', function(e){ const f=e.target.files[0]; if(!f) return; const reader=new FileReader(); reader.onload=function(){ try{ const parsed=JSON.parse(reader.result); db=parsed; saveDb(db); alert('تم الاستيراد'); buildArticleQuestion(); buildVerbQuestion(); buildSentenceQuestion(); }catch(err){ alert('ملف غير صالح'); } }; reader.readAsText(f); });
+
+      // tabs
+      document.querySelectorAll('.tab[data-tab]').forEach(function(t){ t.addEventListener('click', function(){ document.querySelectorAll('.tab').forEach(function(x){ x.classList.remove('active'); }); t.classList.add('active'); const which = t.getAttribute('data-tab'); document.querySelectorAll('main section.card').forEach(function(s){ s.style.display='none'; }); document.getElementById(which).style.display='block'; if(which==='articles') buildArticleQuestion(); if(which==='verbs') buildVerbQuestion(); if(which==='sentences') buildSentenceQuestion(); if(which==='admin') renderDb(); }); });
+
+      // language simple handler (labels only)
+      const TRANSLATIONS = { tab_articles:{ar:'أرتيكل (der/die/das)',de:'Artikel (der/die/das)'}, tab_verbs:{ar:'تصريف أفعال',de:'Verbkonjugation'}, tab_sentences:{ar:'تكوين جمل',de:'Satzbildung'}, tab_admin:{ar:'لوحة المسؤول',de:'Admin-Panel'}, h_articles:{ar:'سؤال الأرتيكل',de:'Artikel Frage'}, btn_new:{ar:'سؤال جديد',de:'Neue Frage'}, h_verbs:{ar:'سؤال تصريف الفعل',de:'Verbkonjugation Frage'}, h_sentences:{ar:'اختر الجملة الصحيحة',de:'Wähle den richtigen Satz'}, h_admin:{ar:'لوحة المسؤول (تسجيل الدخول / إدارة)',de:'Admin-Panel'}, login_user:{ar:'اسم المستخدم',de:'Benutzername'}, login_pass:{ar:'كلمة المرور',de:'Passwort'}, btn_login:{ar:'دخول',de:'Anmelden'}, db_note:{ar:'المحتوى محفوظ في التخزين المحلي (localStorage) في المتصفح. يمكنك تصديره/استيراده أو تحريره يدويًا.',de:'Inhalte werden lokal gespeichert. Export/Import möglich.'}, footer_note:{ar:'ملاحظة: هذا الموقع يعمل محليًا في المتصفح ويخزن المحتوى في localStorage.',de:'Hinweis: Diese Seite läuft lokal im Browser.'} };
+      function applyTranslations(lang){ document.querySelectorAll('[data-tkey]').forEach(function(el){ const key=el.getAttribute('data-tkey'); if(TRANSLATIONS[key] && TRANSLATIONS[key][lang]) el.textContent = TRANSLATIONS[key][lang]; }); if(lang==='de'){ document.body.style.direction='ltr'; document.documentElement.lang='de'; } else { document.body.style.direction='rtl'; document.documentElement.lang='ar'; } }
+      document.getElementById('lang-select').addEventListener('change', function(){ applyTranslations(this.value); }); applyTranslations('ar');
+
+      // initial
+      try{ buildArticleQuestion(); buildVerbQuestion(); buildSentenceQuestion(); }catch(e){ showError(e); }
+
+      function showError(err){ console.error(err); const b=document.getElementById('error-banner'); b.style.display='block'; b.textContent = 'خطأ: ' + (err && err.message ? err.message : String(err)); }
+
+      // small helper: if already logged in (session), show admin panel
+      if(sessionStorage.getItem('german_admin_logged')==='1'){
+        const admin = loadAdmin(); if(admin){ setupContainer.style.display='none'; loginContainer.style.display='none'; adminPanel.style.display='block'; renderDb(); }
+      }
+
+    });
+  </script>
+</body>
+</html>
